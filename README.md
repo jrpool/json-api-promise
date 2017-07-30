@@ -27,7 +27,7 @@ The demonstration takes the form of a search service for motion pictures. You ca
 
 The application fulfills the requirements of the “Movie Search API” module in Phase 2 of the [Learners Guild][lg] curriculum.
 
-### Implementation notes
+### Implementation Notes
 
 Direct searching at the IMDB website will in some cases yield more hits than this application does, because this application disregards title lines that do not begin with a title, a space, an opening parenthesis, a year, and a closing parenthesis. A minority of IMDB title lines fail to conform to that format.
 
