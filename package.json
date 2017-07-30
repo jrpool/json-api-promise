@@ -24,7 +24,6 @@
   "bugs": {
     "url": "https://github.com/jrpool/json-api-promise.git/issues"
   },
-  "homepage": "https://github.com/jrpool/json-api-promise.git/index.html",
   "repository": {
     "type": "git",
     "url": "https://github.com/jrpool/json-api-promise.git"
