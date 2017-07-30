@@ -2,15 +2,13 @@
 const app = require('express')();
 
 // Import required modules.
+const querystring = require('querystring');
 const rpn = require('request-promise-native');
 const cheerio = require('cheerio');
 
-/*
-  Identify the parameters of external requests that will be made, except
-  for the query string.
-*/
-const extReqParams = {
-  url: 'http://www.imdb.com/find',
+// Identify the external request that will be made, except the “q” parameter.
+const url = 'http://www.imdb.com/find';
+const queryParams = {
   q: '',
   ref_: 'nv_sr_fn',
   s: 'all'
@@ -48,8 +46,8 @@ const jsonify = listTexts => {
   const listObject = {'movies': []};
   listTexts.forEach(listText => {
     // Ignore lines deviating from title (year) format.
-    const subTexts = listText.match(/^([()])+ \((\d{4})\)/);
-    if (subTexts.length) {
+    const subTexts = listText.match(/^([^()]+) \((\d{4})\)/);
+    if (subTexts) {
       listObject.movies.push({'name': subTexts[1], 'year': subTexts[2]});
     }
   });
@@ -62,13 +60,13 @@ const jsonify = listTexts => {
 app.get(
   '/api/search/:q',
   (req, res) => {
-    extReqParams.q = req.params.q;
-    const urlWithQuery
-      = extReqParams.url
-      + '?'
-      + ['q', 'ref_', 's'].map(val => val + '=' + extReqParams[val]).join('&');
+    queryParams.q = req.params.q;
+    const urlWithQuery = url + '?' + querystring.stringify(queryParams);
     rpn(urlWithQuery)
-      .then(body => {res.send(jsonify(titleList(body)));})
+      .then(body => {
+        res.set('Content-Type', 'application/json');
+        res.send(Buffer.from(jsonify(titleList(body))));
+      })
       .catch(err => {reportError('perform your search', err);});
   }
 );

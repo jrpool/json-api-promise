@@ -8,6 +8,7 @@ Express API using request-promise-native and cheerio to fetch HTML and respondin
 ## modules
 
 ```
+app.js
 ```
 
 ## Discussion
@@ -25,6 +26,20 @@ This application demonstrates the use of:
 The demonstration takes the form of a search service for motion pictures. You can use it to get information from IMDB in response to a query string.
 
 The application fulfills the requirements of the “Movie Search API” module in Phase 2 of the [Learners Guild][lg] curriculum.
+
+### Implementation notes
+
+Direct searching at the IMDB website will in some cases yield more hits than this application does, because this application disregards title lines that do not begin with a title, a space, an opening parenthesis, a year, and a closing parenthesis. A minority of IMDB title lines fail to conform to that format.
+
+In order to satisfy the requirement that the content type of the response must be `application/json` and, simultaneously, the requirement that the JSON response must be multi-line and indented, the application deviates from what might otherwise be the most straightforward methods. Specifically:
+
+- It avoids using the `res.json()` method of Express. That method provides the right header, but does not allow JSON responses to be multi-line and embedded. Instead, the application formats the JSON string itself and uses the `res.send()` method to serve it.
+
+- Thus, it uses the `res.send()` method, but does not make the JSON string its argument, because if it did so then the response content type would have to be `text/html`.
+
+- Thus, it converts the JSON string to a Buffer object and uses that as the `res.send()` argument, because Express allows the default `application/octet-stream` content type to be overridden when a Buffer object is the argument of `res.send()`.
+
+- Thus, it pre-defines the content type as `application/json`, but not using the `res.type()` method, because Express accepts a content-type override only if the type has been set by means of the more verbose `res.set()` method.
 
 ## Installation and Setup
 
@@ -54,9 +69,14 @@ Make that parent directory your working directory, by executing, for example:
 
 To start the application, execute `npm start` (or, if under Windows, `npm run startwin`).
 
-To conduct a motion-picture search, submit a query to the application by using a web browser or `cURL` to request a URL conforming to this example:
+To conduct a motion-picture search, submit a query to the application by using a web browser or (in a separate terminal window)`cURL` to request a URL conforming to these examples:
 
-`http://localhost:3000/api/search/nuclear`
+`http://localhost:3000/api/search/nuclear` (browser)
+`http://localhost:3000/api/search/nuclear waste` (browser)
+`curl http://localhost:3000/api/search/nuclear` (`cURL`)
+`curl http://localhost:3000/api/search/nuclear%20waste` (`cURL`)
+
+As shown, your search string must be URL-encoded. `cURL` does not do this for you, but browsers typically do.
 
 To perform linting, execute `npm run lint`.
 
