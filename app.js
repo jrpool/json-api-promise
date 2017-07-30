@@ -48,23 +48,15 @@ const jsonify = listTexts => {
   const listObject = {'movies': []};
   listTexts.forEach(listText => {
     // Ignore lines deviating from title (year) format.
-    if(/^([()])+ \((\d{4})\)/) {
-      listObject.movies.push({'name': $1, 'year': $2});
+    const subTexts = listText.match(/^([()])+ \((\d{4})\)/);
+    if (subTexts.length) {
+      listObject.movies.push({'name': subTexts[1], 'year': subTexts[2]});
     }
   });
   return JSON.stringify(listObject, null, 2);
 };
 
-// If it is:
-if (query) {
-  // Make it the value of the “q” property of requestParams.
-  requestParams['q'] = query;
-  // Identify the complete URL, including the query.
-  // Make an HTTP GET request to that URL and process the result.
-  rpn(urlWithQuery, processRequestResult);
-}
-
-////// CLIENT REQUEST ROUTES //////
+/// /// CLIENT REQUEST ROUTES /// ///
 
 // Perform a search.
 app.get(
@@ -76,18 +68,12 @@ app.get(
       + '?'
       + ['q', 'ref_', 's'].map(val => val + '=' + extReqParams[val]).join('&');
     rpn(urlWithQuery)
-      .then({
-        body => {
-          res.send(jsonify(titleList(body)));
-        }
-      })
-      .catch(err => {
-        reportError('perform your search', err);
-      });
+      .then(body => {res.send(jsonify(titleList(body)));})
+      .catch(err => {reportError('perform your search', err);});
   }
 );
 
-////// EXECUTION //////
+/// /// EXECUTION /// ///
 
 // Make the application listen for queries.
 app.listen(3000, () => {
